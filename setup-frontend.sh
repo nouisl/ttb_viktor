@@ -1,13 +1,10 @@
-#!/bin/bash
-
-echo "Initializing React App..."
-npx create-react-app messaging-app-frontend
-cd messaging-app-frontend
+npm init
+npm install create-react-app
+npx create-react-app snitch-app-frontend
+npm start
 
 echo "Installing Dependencies..."
 npm install socket.io-client
 npm install firebase
 
-echo "Starting the App..."
-npm start
 
