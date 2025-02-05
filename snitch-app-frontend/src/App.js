@@ -1,22 +1,26 @@
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./App.css"; // Import custom styles
 
 const socket = io("http://192.168.200.69:5000", { transports: ["websocket"] });
 
 function App() {
     const [username, setUsername] = useState("");
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [receiver, setReceiver] = useState("");
     const [message, setMessage] = useState("");
-    const [messages, setMessages] = useState([]);
+    const [messages, setMessages] = useState({});
     const [users, setUsers] = useState([]);
 
     useEffect(() => {
-        // Receive messages
         socket.on("receiveMessage", (msg) => {
-            setMessages((prev) => [...prev, msg]);
+            setMessages((prev) => ({
+                ...prev,
+                [msg.sender]: [...(prev[msg.sender] || []), msg],
+            }));
         });
 
-        // Update online users list
         socket.on("userList", (onlineUsers) => {
             setUsers(onlineUsers);
         });
@@ -28,68 +32,110 @@ function App() {
     }, []);
 
     const joinChat = () => {
-        if (username.trim()) {
-            socket.emit("joinChat", username);
+        if (!username.trim()) {
+            alert("Please enter a username to join the chat.");
+            return;
         }
+        socket.emit("joinChat", username);
+        setIsLoggedIn(true);
     };
 
     const sendMessage = () => {
-        if (message.trim() && username.trim() && receiver.trim()) {
-            socket.emit("sendMessage", { sender: username, receiver, message });
+        if (!username) {
+            alert("Please enter a username before sending messages.");
+            return;
+        }
+        if (message.trim() && receiver.trim()) {
+            const msgData = { sender: username, receiver, message };
+            socket.emit("sendMessage", msgData);
+
+            setMessages((prev) => ({
+                ...prev,
+                [receiver]: [...(prev[receiver] || []), { sender: "Me", message }],
+            }));
+
             setMessage("");
         }
     };
 
     return (
-        <div className="p-4">
-            <h1 className="text-xl font-bold">🔥 Snitch Chat</h1>
+        <div className="container chat-container">
+            <h1 className="chat-title">🔥 Snitch Chat</h1>
 
-            {/* Username Input */}
-            <input
-                className="border p-1 mb-2 w-full"
-                placeholder="Enter your name"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-            />
-            <button className="bg-green-500 text-white px-2 py-1 mb-4" onClick={joinChat}>
-                Join Chat
-            </button>
+            {!isLoggedIn ? (
+                <div className="login-section">
+                    <div className="input-group">
+                        <input
+                            className="form-control"
+                            placeholder="Enter your name"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                        />
+                        <button className="btn btn-success" onClick={joinChat}>
+                            Join Chat
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                <div className="chat-wrapper">
+                    <div className="users-list">
+                        <h2>🟢 Online Users</h2>
+                        <ul className="list-group">
+                            {users.length > 0 && (
+                                <li className="list-group-item active">👤 {username} (You)</li>
+                            )}
+                            {users
+                                .filter((user) => user !== username)
+                                .map((user, idx) => (
+                                    <li
+                                        key={idx}
+                                        className={`list-group-item ${
+                                            receiver === user ? "active-user" : ""
+                                        }`}
+                                        onClick={() => setReceiver(user)}
+                                    >
+                                        {user}
+                                    </li>
+                                ))}
+                        </ul>
+                    </div>
 
-            {/* Online Users List */}
-            <h2 className="text-lg font-bold">🟢 Online Users</h2>
-            <ul>
-                {users.map((user, idx) => (
-                    <li key={idx} onClick={() => setReceiver(user)} className="cursor-pointer p-1 hover:bg-gray-200">
-                        {user}
-                    </li>
-                ))}
-            </ul>
+                    <div className="chat-section">
+                        {receiver ? (
+                            <>
+                                <h2>💬 Chatting with: {receiver}</h2>
+                                <div className="messages-box">
+                                    {(messages[receiver] || []).map((msg, idx) => (
+                                        <p
+                                            key={idx}
+                                            className={`message ${
+                                                msg.sender === "Me" ? "sent" : "received"
+                                            }`}
+                                        >
+                                            <strong>{msg.sender}:</strong> {msg.message}
+                                        </p>
+                                    ))}
+                                </div>
 
-            {/* Selected User */}
-            <h2 className="text-lg font-bold mt-4">📩 Chatting with: {receiver || "Select a user"}</h2>
-
-            {/* Messages Display */}
-            <div className="border p-2 h-60 overflow-auto">
-                {messages
-                    .filter(msg => msg.sender === receiver || msg.sender === username)
-                    .map((msg, idx) => (
-                        <p key={idx} className="border-b p-1">
-                            <strong>{msg.sender}:</strong> {msg.message}
-                        </p>
-                    ))}
-            </div>
-
-            {/* Message Input */}
-            <input
-                className="border p-1 w-full"
-                placeholder="Type a message..."
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-            />
-            <button className="bg-blue-500 text-white px-2 py-1 mt-2 w-full" onClick={sendMessage}>
-                Send
-            </button>
+                                <div className="input-group">
+                                    <input
+                                        className="form-control"
+                                        placeholder="Type a message..."
+                                        value={message}
+                                        onChange={(e) => setMessage(e.target.value)}
+                                        onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                                    />
+                                    <button className="btn btn-primary" onClick={sendMessage}>
+                                        Send
+                                    </button>
+                                </div>
+                            </>
+                        ) : (
+                            <h3>Select a user to start chatting</h3>
+                        )}
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
