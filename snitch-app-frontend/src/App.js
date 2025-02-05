@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./App.css"; // Import custom styles
+import "./App.css"; 
+import Logo from "./image/SnitchAppLogo.png";
 
 const socket = io("http://192.168.200.69:5000", { transports: ["websocket"] });
 
@@ -61,8 +62,10 @@ function App() {
     return (
       <div className="container-fluid d-flex justify-content-center align-items-center vh-100">
           <div className="chat-container">
-              <h1 className="chat-title">🔥 Snitch Chat</h1>
-  
+          <h1 className="chat-title">
+            <img src={Logo} alt="Snitch Chat Logo" className="chat-logo" />
+            <span className="fw-bold">Snitch Chat</span>
+          </h1>
               {!isLoggedIn ? (
                   <div className="login-section">
                       <div className="input-group">
