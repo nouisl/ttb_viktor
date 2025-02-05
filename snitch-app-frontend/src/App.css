@@ -1,9 +1,11 @@
-/* 🎨 Color Scheme */
+/* 🎨 Updated Color Scheme */
 :root {
   --bg-color: #ebebeb;
   --primary-color: #f13b0e;
   --secondary-color: #fa9302;
   --accent-color: #006eba;
+  --dark-bg: #5f5e5f; 
+  --user-text: #fa9302; 
 }
 
 body {
@@ -11,14 +13,28 @@ body {
   font-family: Arial, sans-serif;
 }
 
+/* Center the chat container and expand its width */
 .chat-container {
-  max-width: 900px;
-  margin: 20px auto;
+  width: 90vw; /* Expands to 90% of the viewport width */
+  max-width: 1200px; /* Prevents it from getting too wide on large screens */
   background: white;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+
+  /* Centers the container */
+  margin: 50px auto;
+  display: flex;
+  flex-direction: column;
 }
+
+/* Ensure chat wrapper inside also stretches */
+.chat-wrapper {
+  display: flex;
+  gap: 20px;
+  width: 100%; /* Ensures it takes the full width of the container */
+}
+
 
 .chat-title {
   text-align: center;
@@ -29,15 +45,13 @@ body {
   text-align: center;
 }
 
-.chat-wrapper {
-  display: flex;
-  gap: 20px;
-}
+
+
 
 /* 🟢 Online Users */
 .users-list {
   width: 250px;
-  background: var(--secondary-color);
+  background: var(--dark-bg); /* Changed to black */
   padding: 15px;
   border-radius: 10px;
   color: white;
@@ -52,7 +66,7 @@ body {
 }
 
 .list-group-item.active {
-  background: var(--primary-color);
+  background: var(--user-text); /* User's own username color */
   color: white;
 }
 
@@ -77,6 +91,8 @@ body {
   border: 1px solid #ddd;
   border-radius: 5px;
   background: #f9f9f9;
+  display: flex;
+  flex-direction: column;
 }
 
 /* 💬 Message Styling */
@@ -84,35 +100,22 @@ body {
   padding: 8px 12px;
   margin: 5px 0;
   border-radius: 15px;
+  max-width: 60%;
   display: inline-block;
-  max-width: 70%;
+  word-wrap: break-word;
 }
 
+/* Sent (Me) messages right-aligned */
 .sent {
-  background: var(--primary-color);
+  background: var(--user-text);
   color: white;
   align-self: flex-end;
   text-align: right;
 }
 
+/* Received messages left-aligned */
 .received {
   background: var(--accent-color);
   color: white;
   align-self: flex-start;
-}
-
-.input-group {
-  margin-top: 10px;
-}
-
-.chat-title {
-  font-size: 1.8rem; /* Smaller title */
-}
-
-.users-list h2, .chat-section h2 {
-  font-size: 1.2rem; /* Reduce headers */
-}
-
-.list-group-item {
-  font-size: 1rem; /* Reduce online users text size */
 }

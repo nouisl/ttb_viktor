@@ -59,85 +59,88 @@ function App() {
     };
 
     return (
-        <div className="container chat-container">
-            <h1 className="chat-title">🔥 Snitch Chat</h1>
+      <div className="container-fluid d-flex justify-content-center align-items-center vh-100">
+          <div className="chat-container">
+              <h1 className="chat-title">🔥 Snitch Chat</h1>
+  
+              {!isLoggedIn ? (
+                  <div className="login-section">
+                      <div className="input-group">
+                          <input
+                              className="form-control"
+                              placeholder="Enter your name"
+                              value={username}
+                              onChange={(e) => setUsername(e.target.value)}
+                          />
+                          <button className="btn btn-success" onClick={joinChat}>
+                              Join Chat
+                          </button>
+                      </div>
+                  </div>
+              ) : (
+                  <div className="chat-wrapper">
+                      <div className="users-list">
+                          <h2>Online Users</h2>
+                          <ul className="list-group">
+                              {users.length > 0 && (
+                                  <li className="list-group-item active">👤 {username} (You)</li>
+                              )}
+                              {users
+                                  .filter((user) => user !== username)
+                                  .map((user, idx) => (
+                                      <li
+                                          key={idx}
+                                          className={`list-group-item ${
+                                              receiver === user ? "active-user" : ""
+                                          }`}
+                                          onClick={() => setReceiver(user)}
+                                      >
+                                          {user}
+                                      </li>
+                                  ))}
+                          </ul>
+                      </div>
+  
+                      <div className="chat-section">
+                          {receiver ? (
+                              <>
+                                  <h2>💬 Chatting with: {receiver}</h2>
+                                  <div className="messages-box">
+                                      {(messages[receiver] || []).map((msg, idx) => (
+                                          <p
+                                              key={idx}
+                                              className={`message ${
+                                                  msg.sender === "Me" ? "sent" : "received"
+                                              }`}
+                                          >
+                                              <strong>{msg.sender}:</strong> {msg.message}
+                                          </p>
+                                      ))}
+                                  </div>
+  
+                                  <div className="input-group">
+                                      <input
+                                          className="form-control"
+                                          placeholder="Type a message..."
+                                          value={message}
+                                          onChange={(e) => setMessage(e.target.value)}
+                                          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+                                      />
+                                      <button className="btn btn-primary" onClick={sendMessage}>
+                                          Send
+                                      </button>
+                                  </div>
+                              </>
+                          ) : (
+                              <h3>Select a user to start chatting</h3>
+                          )}
+                      </div>
+                  </div>
+              )}
+          </div>
+      </div>
+  );
 
-            {!isLoggedIn ? (
-                <div className="login-section">
-                    <div className="input-group">
-                        <input
-                            className="form-control"
-                            placeholder="Enter your name"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                        />
-                        <button className="btn btn-success" onClick={joinChat}>
-                            Join Chat
-                        </button>
-                    </div>
-                </div>
-            ) : (
-                <div className="chat-wrapper">
-                    <div className="users-list">
-                        <h2>🟢 Online Users</h2>
-                        <ul className="list-group">
-                            {users.length > 0 && (
-                                <li className="list-group-item active">👤 {username} (You)</li>
-                            )}
-                            {users
-                                .filter((user) => user !== username)
-                                .map((user, idx) => (
-                                    <li
-                                        key={idx}
-                                        className={`list-group-item ${
-                                            receiver === user ? "active-user" : ""
-                                        }`}
-                                        onClick={() => setReceiver(user)}
-                                    >
-                                        {user}
-                                    </li>
-                                ))}
-                        </ul>
-                    </div>
-
-                    <div className="chat-section">
-                        {receiver ? (
-                            <>
-                                <h2>💬 Chatting with: {receiver}</h2>
-                                <div className="messages-box">
-                                    {(messages[receiver] || []).map((msg, idx) => (
-                                        <p
-                                            key={idx}
-                                            className={`message ${
-                                                msg.sender === "Me" ? "sent" : "received"
-                                            }`}
-                                        >
-                                            <strong>{msg.sender}:</strong> {msg.message}
-                                        </p>
-                                    ))}
-                                </div>
-
-                                <div className="input-group">
-                                    <input
-                                        className="form-control"
-                                        placeholder="Type a message..."
-                                        value={message}
-                                        onChange={(e) => setMessage(e.target.value)}
-                                        onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-                                    />
-                                    <button className="btn btn-primary" onClick={sendMessage}>
-                                        Send
-                                    </button>
-                                </div>
-                            </>
-                        ) : (
-                            <h3>Select a user to start chatting</h3>
-                        )}
-                    </div>
-                </div>
-            )}
-        </div>
-    );
 }
 
 export default App;
