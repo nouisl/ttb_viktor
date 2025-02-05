@@ -5,7 +5,7 @@ const { Server } = require("socket.io");
 const cors = require("cors");
 const nodemailer = require("nodemailer");
 
-// Firebase Imports
+// Firebase imports
 const { initializeApp } = require("firebase/app");
 const { getFirestore, collection, addDoc, getDocs } = require("firebase/firestore");
 
@@ -27,7 +27,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
-// 📩 Configure Nodemailer for sending emails
+// Configure Nodemailer for sending emails
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -39,16 +39,15 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// User Email List (Modify as needed)
+// User Email List - hardcoded for now
 const userEmails = {
-    "Nadia": "nadiakhan1203@gmail.com",
-    "Vanshita": "vanshitaverma2307@gmail.com",
-    "Noushin": "islamnoushin2001@gmail.com",
-    "Milette": "milette@thetechbros.io",
-    "Sedinam" : "sedinam@thetechbros.io"
+    "Anna": "anna@snitchchat.com",
+    "Bob": "bob@snitchchat.com",
+    "Charlie": "charlie@snitchchat.com",
+    "David": "david@snitchchat.io",
 };
 
-// Function to Send Email Notification
+// Function to send email notification
 const sendEmail = async (recipient, sender, message) => {
     const mailOptions = {
         from: process.env.EMAIL_USER,
@@ -65,7 +64,7 @@ const sendEmail = async (recipient, sender, message) => {
     }
 };
 
-// Function to Save Message to Firestore
+// Function to save message to Firestore
 const saveMessage = async ({ sender, receiver, message }) => {
     try {
         await addDoc(collection(db, "messages"), {
@@ -80,7 +79,7 @@ const saveMessage = async ({ sender, receiver, message }) => {
     }
 };
 
-// Function to Get All Messages from Firestore
+// Function to get all messages from Firestore
 const getMessages = async () => {
     try {
         const querySnapshot = await getDocs(collection(db, "messages"));
@@ -149,7 +148,7 @@ io.on("connection", async (socket) => {
     });
 });
 
-// Start the Server
+// Start the server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, "0.0.0.0", () => console.log(`🔥 Server running on port ${PORT}`));
 
