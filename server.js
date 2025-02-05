@@ -9,7 +9,7 @@ const nodemailer = require("nodemailer");
 const { initializeApp } = require("firebase/app");
 const { getFirestore, collection, addDoc, getDocs } = require("firebase/firestore");
 
-// 🔥 Firebase Configuration (Using .env variables)
+// Firebase Configuration (Using .env variables)
 const firebaseConfig = {
     apiKey: process.env.API_KEY,
     authDomain: process.env.AUTH_DOMAIN,
@@ -39,7 +39,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// 🔥 User Email List (Modify as needed)
+// User Email List (Modify as needed)
 const userEmails = {
     "Nadia": "nadiakhan1203@gmail.com",
     "Vanshita": "vanshitaverma2307@gmail.com",
@@ -48,7 +48,7 @@ const userEmails = {
     "Sedinam" : "sedinam@thetechbros.io"
 };
 
-// 📩 Function to Send Email Notification
+// Function to Send Email Notification
 const sendEmail = async (recipient, sender, message) => {
     const mailOptions = {
         from: process.env.EMAIL_USER,
@@ -65,7 +65,7 @@ const sendEmail = async (recipient, sender, message) => {
     }
 };
 
-// 🔥 Function to Save Message to Firestore
+// Function to Save Message to Firestore
 const saveMessage = async ({ sender, receiver, message }) => {
     try {
         await addDoc(collection(db, "messages"), {
@@ -80,7 +80,7 @@ const saveMessage = async ({ sender, receiver, message }) => {
     }
 };
 
-// 🔥 Function to Get All Messages from Firestore
+// Function to Get All Messages from Firestore
 const getMessages = async () => {
     try {
         const querySnapshot = await getDocs(collection(db, "messages"));
@@ -91,7 +91,7 @@ const getMessages = async () => {
     }
 };
 
-// 🔥 WebSocket Connection
+// WebSocket Connection
 let users = {};
 
 io.on("connection", async (socket) => {
@@ -105,7 +105,7 @@ io.on("connection", async (socket) => {
     socket.on("joinChat", (username) => {
         users[socket.id] = username;
         console.log(`📌 ${username} joined the chat.`);
-        io.emit("userList", Object.values(users)); // Broadcast online users
+        io.emit("userList", Object.values(users)); 
     });
 
     // Listen for new messages
@@ -145,7 +145,7 @@ io.on("connection", async (socket) => {
     socket.on("disconnect", () => {
         console.log(`${users[socket.id]} disconnected`);
         delete users[socket.id];
-        io.emit("userList", Object.values(users)); // Update online users list
+        io.emit("userList", Object.values(users)); 
     });
 });
 
