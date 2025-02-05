@@ -17,7 +17,7 @@
 - **Backend:** Node.js, Express.js, Socket.io Server & Firebase Firestore
 - **Database:** Firebase Firestore
 - **Email Notifications:** Nodemailer (Gmail SMTP)
-- **Hosting & Deployment:** Local - can be extended for Cloud Hosting
+- **Hosting:** Local Deployment (Cloud hosting possible)
 
 ---
 
@@ -60,4 +60,81 @@ node server.js
 cd snitch-app-frontend
 npm start
 ```
+
+
+---
+
+## 📁 Project Structure
+
+```
+📦 TTB_VIKTOR
+ ┣ 📂 server
+ ┃ ┣ 📄 server.js
+ ┃ ┣ 📄 firebase.js
+ ┃ ┣ 📄 package-lock.json
+ ┃ ┣ 📄 .gitignore
+ ┃ ┣ 📄 .env
+ ┃ ┗ 📄 README.md
+ ┣ 📂 snitch-app-frontend
+ ┃ ┣ 📂 public
+ ┃ ┣ 📂 src
+ ┃ ┃ ┣ 📂 images
+ ┃ ┃ ┣ 📄 App.js
+ ┃ ┃ ┣ 📄 App.css
+ ┃ ┃ ┣ 📄 index.js
+ ┃ ┃ ┣ 📄 logo.svg
+ ┃ ┃ ┗ 📄 README.md
+ ┃ ┣ 📄 package.json
+ ┃ ┣ 📄 package-lock.json
+ ┃ ┗ 📄 .gitignore
+ ┗ 📄 README.md
+```
+
+---
+
+## 💡 Contributing
+
+1. **Fork** the repository.
+2. **Create a new branch:**
+   ```sh
+   git checkout -b feature-name
+   ```
+3. **Commit your changes:**
+   ```sh
+   git commit -m "Added new feature"
+   ```
+4. **Push to the branch:**
+   ```sh
+   git push origin feature-name
+   ```
+5. **Create a Pull Request.**
+
+---
+
+## 🛠 Future Enhancements
+
+- ✅ **User Authentication (Google Login, Firebase Auth)**
+- ✅ **Message Encryption for Privacy**
+- ✅ **Group Chat Support**
+- ✅ **Push Notifications (Firebase Cloud Messaging)**
+
+---
+
+## 📜 License
+
+This project is open-source under the **MIT License**.
+
+---
+
+## 📢 Credits
+
+Developed at **TTB x Manchester: Bad Ideas Build Day**  
+
+🎉 Created by:
+- **Nadia Khan**
+- **Vanshita Verma**
+- **Noushin Islam**
+
+Check the hackathon page: [TTB x Manchester](https://lu.ma/proy470q)
+
 
