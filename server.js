@@ -41,9 +41,11 @@ const transporter = nodemailer.createTransport({
 
 // 🔥 User Email List (Modify as needed)
 const userEmails = {
-    "Alice": "nadiakhan1203@gmail.com",
-    "Bob": "Nadiakh1203@gmail.com",
-    "Charlie": "islamnoushin2001@gmail.com"
+    "Nadia": "nadiakhan1203@gmail.com",
+    "Vanshita": "vanshitaverma2307@gmail.com",
+    "Noushin": "islamnoushin2001@gmail.com",
+    "Milette": "milette@thetechbros.io",
+    "Sedinam" : "sedinam@thetechbros.io"
 };
 
 // 📩 Function to Send Email Notification
