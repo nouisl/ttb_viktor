@@ -9,7 +9,7 @@ const nodemailer = require("nodemailer");
 const { initializeApp } = require("firebase/app");
 const { getFirestore, collection, addDoc, getDocs } = require("firebase/firestore");
 
-// 🔥 Firebase Configuration
+// 🔥 Firebase Configuration (Using .env variables)
 const firebaseConfig = {
     apiKey: process.env.API_KEY,
     authDomain: process.env.AUTH_DOMAIN,
@@ -27,10 +27,43 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
-// Store connected users
-let users = {};
+// 📩 Configure Nodemailer for sending emails
+const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+    },
+    tls: {
+        rejectUnauthorized: false
+    }
+});
 
-// 📩 Function to Save Message to Firestore
+// 🔥 User Email List (Modify as needed)
+const userEmails = {
+    "Alice": "nadiakhan1203@gmail.com",
+    "Bob": "Nadiakh1203@gmail.com",
+    "Charlie": "islamnoushin2001@gmail.com"
+};
+
+// 📩 Function to Send Email Notification
+const sendEmail = async (recipient, sender, message) => {
+    const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: recipient,
+        subject: "🔥 Someone Talked About You!",
+        text: `${sender} mentioned you in the chat: "${message}"`
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`📩 Email sent to ${recipient}`);
+    } catch (error) {
+        console.error("❌ Error sending email:", error);
+    }
+};
+
+// 🔥 Function to Save Message to Firestore
 const saveMessage = async ({ sender, receiver, message }) => {
     try {
         await addDoc(collection(db, "messages"), {
@@ -45,32 +78,64 @@ const saveMessage = async ({ sender, receiver, message }) => {
     }
 };
 
+// 🔥 Function to Get All Messages from Firestore
+const getMessages = async () => {
+    try {
+        const querySnapshot = await getDocs(collection(db, "messages"));
+        return querySnapshot.docs.map(doc => doc.data());
+    } catch (error) {
+        console.error("❌ Error retrieving messages:", error);
+        return [];
+    }
+};
+
 // 🔥 WebSocket Connection
-io.on("connection", (socket) => {
+let users = {};
+
+io.on("connection", async (socket) => {
     console.log("User connected:", socket.id);
 
-    // Store user in `users` list
+    // Send previous messages to the newly connected client
+    const previousMessages = await getMessages();
+    socket.emit("previousMessages", previousMessages);
+
+    // Store user in users list
     socket.on("joinChat", (username) => {
         users[socket.id] = username;
         console.log(`📌 ${username} joined the chat.`);
         io.emit("userList", Object.values(users)); // Broadcast online users
     });
 
-    // Listen for private messages
+    // Listen for new messages
     socket.on("sendMessage", async ({ sender, receiver, message }) => {
         console.log(`💬 ${sender} -> ${receiver}: ${message}`);
 
+        if (!message || typeof message !== "string") {
+            console.error("❌ Error: Message is missing or not a string!");
+            return;
+        }
+
+        // Save message to Firestore
         await saveMessage({ sender, receiver, message });
 
-        // Find recipient's socket ID
-        const recipientSocketId = Object.keys(users).find(
-            (key) => users[key] === receiver
+        // Detect if a user's name is mentioned
+        const mentionedUser = Object.keys(userEmails).find(user =>
+            message.toLowerCase().includes(user.toLowerCase())
         );
 
+        // Broadcast message to receiver if online
+        const recipientSocketId = Object.keys(users).find(key => users[key] === receiver);
         if (recipientSocketId) {
             io.to(recipientSocketId).emit("receiveMessage", { sender, message });
         } else {
             console.log(`🚨 ${receiver} is offline. Message saved.`);
+        }
+
+        // If a user is mentioned, send them an email
+        if (mentionedUser) {
+            const recipientEmail = userEmails[mentionedUser];
+            console.log(`📩 Mention detected: Sending email to ${mentionedUser} (${recipientEmail})`);
+            await sendEmail(recipientEmail, sender, message);
         }
     });
 
