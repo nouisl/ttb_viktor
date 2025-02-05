@@ -1,5 +1,4 @@
 require("dotenv").config();
-
 const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
@@ -10,7 +9,7 @@ const nodemailer = require("nodemailer");
 const { initializeApp } = require("firebase/app");
 const { getFirestore, collection, addDoc, getDocs } = require("firebase/firestore");
 
-// 🔥 Firebase Configuration (Using .env variables)
+// 🔥 Firebase Configuration
 const firebaseConfig = {
     apiKey: process.env.API_KEY,
     authDomain: process.env.AUTH_DOMAIN,
@@ -28,114 +27,58 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
 
-// 📩 Configure Nodemailer for sending emails
-const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-    tls: {
-        rejectUnauthorized: false
-    }
-});
+// Store connected users
+let users = {};
 
-// 🔥 User Email List (Modify as needed)
-const users = {
-    "Alice": "nadiakhan1203@gmail.com",
-    "Bob": "Nadiakh1203@gmail.com",
-    "Charlie": "islamnoushin2001@gmail.com"
-};
-
-// 📩 Function to Send Email
-const sendEmail = async (recipient, sender, message) => {
-    const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: recipient,
-        subject: "🔥 Someone Talked About You!",
-        text: `${sender} said: "${message}"`
-    };
-
+// 📩 Function to Save Message to Firestore
+const saveMessage = async ({ sender, receiver, message }) => {
     try {
-        await transporter.sendMail(mailOptions);
-        console.log(`📩 Email sent to ${recipient}`);
-    } catch (error) {
-        console.error("❌ Error sending email:", error);
-    }
-};
-
-// 🔥 Function to Save Message to Firestore
-const saveMessage = async ({ sender, message }) => {
-    try {
-        console.log("Saving message:", message);
         await addDoc(collection(db, "messages"), {
-            sender: String(sender).trim(),
-            text: String(message).trim(),
+            sender,
+            receiver,
+            text: message,
             timestamp: new Date().toISOString()
         });
-
-        console.log("✅ Message saved successfully.");
+        console.log(`✅ Message saved: ${sender} -> ${receiver}: ${message}`);
     } catch (error) {
         console.error("❌ Error saving message:", error);
     }
 };
 
-// 🔥 Function to Get All Messages from Firestore
-const getMessages = async () => {
-    try {
-        const querySnapshot = await getDocs(collection(db, "messages"));
-        return querySnapshot.docs.map(doc => doc.data());
-    } catch (error) {
-        console.error("❌ Error retrieving messages:", error);
-        return [];
-    }
-};
-
 // 🔥 WebSocket Connection
-io.on("connection", async (socket) => {
+io.on("connection", (socket) => {
     console.log("User connected:", socket.id);
 
-    // Send previous messages to the newly connected client
-    const previousMessages = await getMessages();
-    socket.emit("previousMessages", previousMessages);
+    // Store user in `users` list
+    socket.on("joinChat", (username) => {
+        users[socket.id] = username;
+        console.log(`📌 ${username} joined the chat.`);
+        io.emit("userList", Object.values(users)); // Broadcast online users
+    });
 
-    // Listen for new messages
-    socket.on("sendMessage", async ({ sender, message }) => {
-        console.log(`💬 Received message from ${sender}: ${message}`);
+    // Listen for private messages
+    socket.on("sendMessage", async ({ sender, receiver, message }) => {
+        console.log(`💬 ${sender} -> ${receiver}: ${message}`);
 
-        if (!message || typeof message !== "string") {
-            console.error("❌ Error: Message is missing or not a string!");
-            return;
-        }
+        await saveMessage({ sender, receiver, message });
 
-        // Debugging: Log the exact data being sent to Firestore
-        console.log("📌 Data being saved to Firestore:", {
-            sender: String(sender).trim(),
-            text: String(message).trim(),
-            timestamp: new Date().toISOString()
-        });
-
-        // Save message to Firestore
-        await saveMessage({ sender, message });
-
-        // Detect if a user's name is mentioned
-        const mentionedUser = Object.keys(users).find(user =>
-            message.toLowerCase().includes(user.toLowerCase())
+        // Find recipient's socket ID
+        const recipientSocketId = Object.keys(users).find(
+            (key) => users[key] === receiver
         );
 
-        // Broadcast message to all clients
-        io.emit("receiveMessage", { sender, text: message });
-
-        // If a user is mentioned, send them an email
-        if (mentionedUser) {
-            const recipientEmail = users[mentionedUser];
-            console.log(`📩 Mention detected: Sending email to ${mentionedUser} (${recipientEmail})`);
-            await sendEmail(recipientEmail, sender, message);
+        if (recipientSocketId) {
+            io.to(recipientSocketId).emit("receiveMessage", { sender, message });
+        } else {
+            console.log(`🚨 ${receiver} is offline. Message saved.`);
         }
     });
 
+    // Handle user disconnection
     socket.on("disconnect", () => {
-        console.log("User disconnected:", socket.id);
+        console.log(`${users[socket.id]} disconnected`);
+        delete users[socket.id];
+        io.emit("userList", Object.values(users)); // Update online users list
     });
 });
 
