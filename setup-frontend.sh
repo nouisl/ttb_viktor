@@ -1,8 +1,8 @@
 #!/bin/bash
 
 echo "Initializing React App..."
-npx create-react-app messaging-app-frontend
-cd messaging-app-frontend
+npx create-react-app snitch-app-frontend
+cd snitch-app-frontend
 
 echo "Installing Dependencies..."
 npm install socket.io-client
