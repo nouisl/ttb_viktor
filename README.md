@@ -113,10 +113,10 @@ npm start
 
 ## 🛠 Future Enhancements
 
-- ✅ **User Authentication (Google Login, Firebase Auth)**
-- ✅ **Message Encryption for Privacy**
-- ✅ **Group Chat Support**
-- ✅ **Push Notifications (Firebase Cloud Messaging)**
+- **User Authentication (Google Login, Firebase Auth)**
+- **Message Encryption for Privacy**
+- **Group Chat Support**
+- **Push Notifications (Firebase Cloud Messaging)**
 
 ---
 
@@ -130,7 +130,7 @@ This project is open-source under the **MIT License**.
 
 Developed at **TTB x Manchester: Bad Ideas Build Day**  
 
-🎉 Created by:
+Created by:
 - **Nadia Khan**
 - **Vanshita Verma**
 - **Noushin Islam**
