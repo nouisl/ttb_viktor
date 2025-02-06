@@ -5,7 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css"; 
 import Logo from "./image/SnitchAppLogo.png";
 
-// Initialize Socket.io connection to the local server
+// Initialize Socket.io connection to the local server - adjust as needed
 const socket = io("http://192.168.200.69:5000", { transports: ["websocket"] });
 
 function App() {
