@@ -1,6 +1,6 @@
 # 🔥 Snitch Chat
 
-**Snitch Chat** is a real-time messaging app developed by **Nadia Khan, Vanshita Verma and Noushin Islam** the TTB x Manchester: Bad Ideas Build Day. The app allows users to send and receive messages, track online users, and automatically notify users via email when their name is mentioned in a chat.
+**Snitch Chat** is a real-time messaging app developed by **Nadia Khan, Vanshita Verma and Noushin Islam** for the TTB x Manchester: Bad Ideas Build Day. The app allows users to send and receive messages, track online users, and automatically notify users via email when their name is mentioned in a chat.
 
 ## 📌 Features
 
